@@ -84,7 +84,7 @@ intrinsics = {
 with torch.no_grad():
     # This function from an external library takes image paths as input. Therefore, store the paths of the
     # observations and then pass those
-    points1, points2, image1_pil, image2_pil = find_correspondences(rgb_bn, rgb_live, num_pairs, load_size, layer,
+    points1, points2, image1_pil, image2_pil, similarity = find_correspondences(rgb_bn, rgb_live, num_pairs, load_size, layer,
                                                                                        facet, bin, thresh, model_type, stride)
 print(f"Correspondences computed successfully. Point 1: {points1}, Point 2: {points2}")
 
@@ -98,8 +98,31 @@ axes[0].set_title("Image 1")
 axes[0].axis("off")
 
 axes[1].imshow(image2_pil)
-for (y, x), c in zip(points2, colors):
+for (y, x), c, s in zip(points2, colors, similarity):
     axes[1].scatter(x, y, color=c, s=60, edgecolors='white', linewidth=1.5)
+    # Plot the scatter point
+    axes[1].scatter(x, y, color=c, s=60, edgecolors='white', linewidth=1.5)
+
+    # Position for the text label (slightly offset)
+    text_x, text_y = x + 20, y - 20
+
+    # Draw an arrow from the text to the point
+    axes[1].annotate(
+        f"{s:.2f}",                   # Text (formatted similarity)
+        xy=(x, y),                    # Point position
+        xytext=(text_x, text_y),      # Text position
+        color=c,                      # Match color to the point
+        fontsize=10,
+        fontweight='bold',
+        arrowprops=dict(
+            arrowstyle="->",
+            color=c,
+            lw=1.2,
+            shrinkA=5,
+            shrinkB=5
+        ),
+        bbox=dict(boxstyle="round,pad=0.2", fc="white", ec=c, lw=0.8, alpha=0.7)
+    )
 axes[1].set_title("Image 2")
 axes[1].axis("off")
 plt.savefig("robot_demo_results/correspondences.png")

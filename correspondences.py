@@ -53,6 +53,7 @@ def find_correspondences(image_path1: str, image_path2: str, num_pairs: int = 10
 
     # calculate similarity between image1 and image2 descriptors
     similarities = chunk_cosine_sim(descriptors1, descriptors2)
+    print(f"[LOG] Similarities: {similarities}")
 
     # calculate best buddies
     image_idxs = torch.arange(num_patches1[0] * num_patches1[1], device=device)
@@ -81,6 +82,7 @@ def find_correspondences(image_path1: str, image_path2: str, num_pairs: int = 10
     bb_topk_sims = np.full((n_clusters), -np.inf)
     bb_indices_to_show = np.full((n_clusters), -np.inf)
 
+
     # rank pairs by their mean saliency value
     bb_cls_attn1 = saliency_map1[bbs_mask]
     bb_cls_attn2 = saliency_map2[nn_1[bbs_mask]]
@@ -92,6 +94,10 @@ def find_correspondences(image_path1: str, image_path2: str, num_pairs: int = 10
             if rank > bb_topk_sims[label]:
                 bb_topk_sims[label] = rank
                 bb_indices_to_show[label] = i
+
+    print(f"[LOG] KMeans shape: {bb_topk_sims.shape}")
+    print(f"[LOG] KMeans : {bb_topk_sims}")
+    print(f"[LOG] KMeans : {bb_indices_to_show}")
 
     # get coordinates to show
     indices_to_show = torch.nonzero(bbs_mask, as_tuple=False).squeeze(dim=1)[
@@ -111,7 +117,7 @@ def find_correspondences(image_path1: str, image_path2: str, num_pairs: int = 10
         y2_show = (int(y2) - 1) * extractor.stride[0] + extractor.stride[0] + extractor.p // 2
         points1.append((y1_show, x1_show))
         points2.append((y2_show, x2_show))
-    return points1, points2, image1_pil, image2_pil
+    return points1, points2, image1_pil, image2_pil, bb_topk_sims
 
 
 def draw_correspondences(points1: List[Tuple[float, float]], points2: List[Tuple[float, float]],
