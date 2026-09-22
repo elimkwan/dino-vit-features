@@ -22,7 +22,7 @@ Calculate the translation and rotation required for the robot to move to a posit
 ## Setup
 Download this repo
 ```
-git clone https://github.com/ShirAmir/dino-vit-features.git
+git clone https://github.com/elimkwan/dino-vit-features.git
 ```
 
 Set up the virtual environment
